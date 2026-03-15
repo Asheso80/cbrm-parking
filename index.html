@@ -209,7 +209,7 @@ const SIDES={North:['East','West'],South:['East','West'],East:['North','South'],
 const HINTS={North:'Facing North — record the East or West block face',South:'Facing South — record the East or West block face',East:'Facing East — record the North or South block face',West:'Facing West — record the North or South block face'};
 const state={officer:'',obstime:'',facing:'',side:'',action:''};
 let selectedSigns=[],currentPhotos=[],reviewRecordId=null;
-let records=JSON.parse(localStorage.getItem('cbrm_parking')||'[]');
+let records=[];try{records=JSON.parse(localStorage.getItem('cbrm_parking')||'[]');}catch(e){records=[];}
 
 function updateCount(){document.getElementById('rec-count').textContent=records.length;}
 updateCount();
@@ -218,6 +218,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  if(id==='s-home')updateCount();
 }
 
 function numVal(id){return Math.max(0,parseInt(document.getElementById(id).value)||0);}
@@ -381,7 +382,7 @@ function saveRecord(){
   const spaces=numVal('spaces'),occupied=numVal('occ');
   const rec={id:Date.now(),timestamp:new Date().toLocaleString('en-CA'),officer:state.officer,obstime:state.obstime,street,from:document.getElementById('f-from').value.trim(),to:document.getElementById('f-to').value.trim(),facing:state.facing,side:state.side,metersOk:numVal('meters-ok'),metersOos:numVal('meters-oos'),metersGone:numVal('meters-gone'),spaces,occupied,overtime:numVal('overtime'),occupancyPct:spaces>0?Math.round(occupied/spaces*100):0,signage:selectedSigns.join(', ')||'None',constraints:getConstraints(),action:state.action,notes:document.getElementById('f-notes').value.trim(),photos:currentPhotos.slice(),aiResult:null};
   records.push(rec);
-  localStorage.setItem('cbrm_parking',JSON.stringify(records));
+  try{localStorage.setItem('cbrm_parking',JSON.stringify(records));}catch(e){console.warn('Storage unavailable, data in memory only');}
   updateCount();
   showSummary();
 }
