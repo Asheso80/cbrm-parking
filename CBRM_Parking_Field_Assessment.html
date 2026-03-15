@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>CBRM Parking Assessment</title>
+<style>
+  :root{--bg:#ffffff;--bg2:#f5f5f4;--bg3:#eeeee9;--text:#1a1a18;--text2:#5f5e5a;--border:rgba(0,0,0,0.15);--border2:rgba(0,0,0,0.25);--radius:8px;--radius-lg:12px;--blue-bg:#e6f1fb;--blue-text:#0c447c;--blue-border:#185fa5;--green-bg:#eaf3de;--green-text:#27500a;--green-border:#3b6d11;--amber-bg:#faeeda;--amber-text:#633806;--amber-border:#854f0b;--red-bg:#fcebeb;--red-text:#791f1f;--red-border:#a32d2d;--gray-bg:#f1efe8;--gray-text:#444441;--gray-border:#5f5e5a;--navy:#1f4e79}
+  @media(prefers-color-scheme:dark){:root{--bg:#1a1a18;--bg2:#242422;--bg3:#2e2e2b;--text:#e8e6de;--text2:#a09e96;--border:rgba(255,255,255,0.15);--border2:rgba(255,255,255,0.25);--blue-bg:#042c53;--blue-text:#b5d4f4;--green-bg:#173404;--green-text:#c0dd97;--amber-bg:#412402;--amber-text:#fac775;--red-bg:#501313;--red-text:#f7c1c1;--gray-bg:#2c2c2a;--gray-text:#d3d1c7}}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
+  .app{padding:12px;max-width:480px;margin:0 auto;padding-bottom:40px}
+  .screen{display:none}.screen.active{display:block}
+  .header{background:var(--navy);color:#fff;padding:14px 16px 12px;margin:-12px -12px 16px;border-radius:0 0 var(--radius-lg) var(--radius-lg)}
+  .header h1{font-size:17px;font-weight:600}.header p{font-size:12px;opacity:0.75;margin-top:2px}
+  label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:4px;margin-top:14px}
+  input,textarea{width:100%;font-size:16px;padding:11px 13px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);-webkit-appearance:none}
+  input:focus,textarea:focus{outline:none;border-color:var(--blue-border);box-shadow:0 0 0 3px rgba(24,95,165,0.15)}
+  textarea{resize:vertical;min-height:72px}
+  .btn{display:block;width:100%;padding:13px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:15px;font-weight:500;cursor:pointer;text-align:center;margin-top:10px}
+  .btn:active{opacity:0.7}
+  .btn-primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .btn-success{background:#1d9e75;color:#fff;border-color:#0f6e56}
+  .btn-danger{background:#e24b4a;color:#fff;border-color:#a32d2d}
+  .btn-cam{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border);display:flex;align-items:center;justify-content:center;gap:8px}
+  .seg{display:flex;gap:6px;margin-top:6px}
+  .seg-btn{flex:1;padding:11px 6px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;text-align:center;transition:background 0.1s}
+  .seg-btn.disabled{opacity:0.3;pointer-events:none}
+  .sel-blue{background:var(--blue-bg);color:var(--blue-text);border-color:var(--blue-border)}
+  .sel-green{background:var(--green-bg);color:var(--green-text);border-color:var(--green-border)}
+  .sel-amber{background:var(--amber-bg);color:var(--amber-text);border-color:var(--amber-border)}
+  .sel-red{background:var(--red-bg);color:var(--red-text);border-color:var(--red-border)}
+  .sel-gray{background:var(--gray-bg);color:var(--gray-text);border-color:var(--gray-border)}
+  .counter{display:flex;align-items:center;gap:14px;margin-top:6px}
+  .counter-val{font-size:24px;font-weight:600;min-width:36px;text-align:center}
+  .counter-btn{width:44px;height:44px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px;margin-bottom:10px}
+  .card-title{font-size:14px;font-weight:600}.card-sub{font-size:12px;color:var(--text2);margin-top:2px}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 9px;border-radius:var(--radius)}
+  .badge-green{background:var(--green-bg);color:var(--green-text)}.badge-amber{background:var(--amber-bg);color:var(--amber-text)}.badge-red{background:var(--red-bg);color:var(--red-text)}.badge-blue{background:var(--blue-bg);color:var(--blue-text)}.badge-gray{background:var(--gray-bg);color:var(--gray-text)}
+  .divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+  .section-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-top:18px;margin-bottom:6px}
+  .orient-hint{font-size:12px;color:var(--blue-text);margin-top:8px;padding:8px 12px;background:var(--blue-bg);border-radius:var(--radius)}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+  .stat{background:var(--bg2);border-radius:var(--radius);padding:10px;text-align:center}
+  .stat-num{font-size:22px;font-weight:600}.stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+  .check-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}.check-row:last-child{border-bottom:none}
+  .check-row input[type=checkbox]{width:22px;height:22px;flex-shrink:0;accent-color:var(--navy)}
+  .check-row span{font-size:15px}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .notice{background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius);padding:10px 13px;font-size:13px;margin-top:14px}
+  .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+  .photo-thumb{position:relative;aspect-ratio:1;border-radius:var(--radius);overflow:hidden;background:var(--bg2);border:1px solid var(--border)}
+  .photo-thumb img{width:100%;height:100%;object-fit:cover}
+  .photo-del{position:absolute;top:4px;right:4px;width:22px;height:22px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .photo-count{font-size:12px;color:var(--text2);margin-top:4px}
+  .ai-result{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:10px;font-size:13px;line-height:1.7}
+  .spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(12,68,124,0.3);border-top-color:var(--blue-text);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #export-out{margin-top:12px;padding:12px;background:var(--bg2);border-radius:var(--radius);font-size:11px;font-family:monospace;color:var(--text2);white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;display:none;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div id="s-home" class="screen active">
+  <div class="header"><h1>CBRM Parking Assessment</h1><p>Downtown Sydney — field data collection</p></div>
+  <label>Your name</label>
+  <input type="text" id="officer-name" placeholder="Officer name" autocomplete="name">
+  <label>Observation time</label>
+  <div class="seg" id="obstime-seg">
+    <div class="seg-btn" onclick="selectSeg(this,'obstime','Morning ~9am','sel-blue')">Morning</div>
+    <div class="seg-btn" onclick="selectSeg(this,'obstime','Midday ~12pm','sel-blue')">Midday</div>
+    <div class="seg-btn" onclick="selectSeg(this,'obstime','Afternoon ~4pm','sel-blue')">Afternoon</div>
+  </div>
+  <button class="btn btn-primary" onclick="startAssessment()" style="margin-top:18px">Start new block face</button>
+  <hr class="divider">
+  <button class="btn" onclick="showSummary()">View saved records (<span id="rec-count">0</span>)</button>
+  <button class="btn" onclick="showExport()">Export data</button>
+  <div class="notice">Data saves to this device automatically. Use Export when done to send results.</div>
+</div>
+
+<div id="s-form" class="screen">
+  <div class="header"><h1>Block face entry</h1><p id="form-context"></p></div>
+  <label>Street name</label>
+  <input type="text" id="f-street" placeholder="e.g. Charlotte St" autocomplete="off">
+  <label>Block — from / to intersections</label>
+  <div class="row">
+    <input type="text" id="f-from" placeholder="From" autocomplete="off">
+    <input type="text" id="f-to" placeholder="To" autocomplete="off">
+  </div>
+  <hr class="divider">
+  <div class="section-title">Orientation</div>
+  <label>Facing direction</label>
+  <div class="seg" id="facing-seg">
+    <div class="seg-btn" onclick="selectFacing(this,'North')">North</div>
+    <div class="seg-btn" onclick="selectFacing(this,'South')">South</div>
+    <div class="seg-btn" onclick="selectFacing(this,'East')">East</div>
+    <div class="seg-btn" onclick="selectFacing(this,'West')">West</div>
+  </div>
+  <label>Block face side</label>
+  <div class="seg" id="side-seg">
+    <div class="seg-btn disabled" id="side-E" onclick="selectSeg(this,'side','East','sel-blue')">East</div>
+    <div class="seg-btn disabled" id="side-W" onclick="selectSeg(this,'side','West','sel-blue')">West</div>
+    <div class="seg-btn disabled" id="side-N" onclick="selectSeg(this,'side','North','sel-blue')">North</div>
+    <div class="seg-btn disabled" id="side-S" onclick="selectSeg(this,'side','South','sel-blue')">South</div>
+  </div>
+  <div id="orient-hint" class="orient-hint" style="display:none"></div>
+  <hr class="divider">
+  <div class="section-title">Photos</div>
+  <button class="btn btn-cam" onclick="document.getElementById('photo-input').click()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Take / add photo
+  </button>
+  <input type="file" id="photo-input" accept="image/*" capture="environment" multiple style="display:none" onchange="addPhotos(this)">
+  <div class="photo-grid" id="photo-preview"></div>
+  <p class="photo-count" id="photo-count"></p>
+  <hr class="divider">
+  <div class="section-title">Meter inventory</div>
+  <label>Functional meters</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('meters-ok',-1)">−</button><span class="counter-val" id="meters-ok-val">0</span><button class="counter-btn" onclick="adj('meters-ok',1)">+</button></div>
+  <label>Out of service / broken</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('meters-oos',-1)">−</button><span class="counter-val" id="meters-oos-val">0</span><button class="counter-btn" onclick="adj('meters-oos',1)">+</button></div>
+  <label>Missing / removed entirely</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('meters-gone',-1)">−</button><span class="counter-val" id="meters-gone-val">0</span><button class="counter-btn" onclick="adj('meters-gone',1)">+</button></div>
+  <hr class="divider">
+  <div class="section-title">Occupancy</div>
+  <label>Total marked spaces on this block face</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('spaces',-1)">−</button><span class="counter-val" id="spaces-val">0</span><button class="counter-btn" onclick="adj('spaces',1)">+</button></div>
+  <label>Vehicles currently parked</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('occ',-1)">−</button><span class="counter-val" id="occ-val">0</span><button class="counter-btn" onclick="adj('occ',1)">+</button></div>
+  <label>Estimated overtime vehicles</label>
+  <div class="counter"><button class="counter-btn" onclick="adj('overtime',-1)">−</button><span class="counter-val" id="overtime-val">0</span><button class="counter-btn" onclick="adj('overtime',1)">+</button></div>
+  <hr class="divider">
+  <div class="section-title">Existing signage</div>
+  <div class="seg" id="sign-seg">
+    <div class="seg-btn" onclick="selectSeg(this,'sign','None','sel-gray')">None</div>
+    <div class="seg-btn" onclick="selectSeg(this,'sign','Time limit','sel-green')">Time limit</div>
+    <div class="seg-btn" onclick="selectSeg(this,'sign','No parking','sel-red')">No parking</div>
+    <div class="seg-btn" onclick="selectSeg(this,'sign','Loading zone','sel-amber')">Loading</div>
+  </div>
+  <label>Physical constraints — check all that apply</label>
+  <div style="margin-top:4px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:0 14px">
+    <div class="check-row"><input type="checkbox" id="c-hydrant"><span>Fire hydrant</span></div>
+    <div class="check-row"><input type="checkbox" id="c-accessible"><span>Accessible space</span></div>
+    <div class="check-row"><input type="checkbox" id="c-driveway"><span>Driveway / curb cut</span></div>
+    <div class="check-row"><input type="checkbox" id="c-buszone"><span>Bus stop / transit zone</span></div>
+    <div class="check-row"><input type="checkbox" id="c-commercial"><span>Commercial loading</span></div>
+  </div>
+  <hr class="divider">
+  <div class="section-title">Recommendation</div>
+  <div class="seg" id="action-seg">
+    <div class="seg-btn" onclick="selectSeg(this,'action','New sign zone','sel-green')">New sign</div>
+    <div class="seg-btn" onclick="selectSeg(this,'action','Reallocate meter','sel-blue')">Move meter</div>
+    <div class="seg-btn" onclick="selectSeg(this,'action','Retire meter','sel-amber')">Retire</div>
+    <div class="seg-btn" onclick="selectSeg(this,'action','No change','sel-gray')">No change</div>
+  </div>
+  <label>Notes</label>
+  <textarea id="f-notes" placeholder="Observations, photo reference, anything unusual..."></textarea>
+  <button class="btn btn-success" onclick="saveRecord()" style="margin-top:18px">Save block face</button>
+  <button class="btn" onclick="showScreen('s-home')">Cancel</button>
+</div>
+
+<div id="s-summary" class="screen">
+  <div class="header"><h1>Saved records</h1><p id="summary-sub"></p></div>
+  <div class="stat-grid" id="summary-stats"></div>
+  <hr class="divider">
+  <div id="record-list"></div>
+  <button class="btn btn-primary" onclick="startAssessment()" style="margin-top:4px">Add another block face</button>
+  <button class="btn" onclick="showScreen('s-home')">Back to home</button>
+</div>
+
+<div id="s-review" class="screen">
+  <div class="header"><h1 id="review-title"></h1><p id="review-sub"></p></div>
+  <div class="photo-grid" id="review-photos" style="margin-bottom:12px"></div>
+  <button class="btn btn-cam" id="ai-btn" onclick="runAI()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+    Analyse photos with AI
+  </button>
+  <div id="ai-result"></div>
+  <hr class="divider">
+  <button class="btn" onclick="showSummary()">Back to records</button>
+</div>
+
+<div id="s-export" class="screen">
+  <div class="header"><h1>Export data</h1><p>Copy CSV and paste into the assessment spreadsheet</p></div>
+  <div class="stat-grid" id="export-stats"></div>
+  <button class="btn btn-primary" onclick="copyCSV()" style="margin-top:16px">Copy CSV to clipboard</button>
+  <button class="btn" onclick="emailCSV()">Share via email</button>
+  <div id="export-out"></div>
+  <hr class="divider">
+  <button class="btn btn-danger" onclick="clearAll()">Clear all records from this device</button>
+  <button class="btn" onclick="showScreen('s-home')">Back to home</button>
+</div>
+
+</div>
+<script>
+const FACING_TO_SIDES={North:['East','West'],South:['East','West'],East:['North','South'],West:['North','South']};
+const FACING_HINTS={North:'Facing North — record the East or West block face',South:'Facing South — record the East or West block face',East:'Facing East — record the North or South block face',West:'Facing West — record the North or South block face'};
+const state={officer:'',obstime:'',facing:'',side:'',sign:'',action:'','meters-ok':0,'meters-oos':0,'meters-gone':0,spaces:0,occ:0,overtime:0};
+let currentPhotos=[];
+let reviewRecordId=null;
+let records=JSON.parse(localStorage.getItem('cbrm_parking')||'[]');
+function updateCount(){document.getElementById('rec-count').textContent=records.length;}
+updateCount();
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function selectSeg(el,key,val,cls){if(el.classList.contains('disabled'))return;el.parentElement.querySelectorAll('.seg-btn').forEach(b=>{b.className='seg-btn';if(b.id&&b.id.startsWith('side-')&&state.facing){const valid=FACING_TO_SIDES[state.facing];const dir=b.id.split('-')[1];const fullDir={E:'East',W:'West',N:'North',S:'South'}[dir];if(!valid.includes(fullDir))b.classList.add('disabled');}});el.classList.add(cls);state[key]=val;}
+function selectFacing(el,dir){document.querySelectorAll('#facing-seg .seg-btn').forEach(b=>b.className='seg-btn');el.classList.add('sel-blue');state.facing=dir;state.side='';const valid=FACING_TO_SIDES[dir];['E','W','N','S'].forEach(d=>{const fullDir={E:'East',W:'West',N:'North',S:'South'}[d];const btn=document.getElementById('side-'+d);btn.className='seg-btn';if(!valid.includes(fullDir))btn.classList.add('disabled');});const hint=document.getElementById('orient-hint');hint.textContent=FACING_HINTS[dir];hint.style.display='block';}
+function adj(key,delta){state[key]=Math.max(0,(state[key]||0)+delta);document.getElementById(key+'-val').textContent=state[key];}
+function addPhotos(input){Array.from(input.files).forEach(file=>{const r=new FileReader();r.onload=e=>{currentPhotos.push(e.target.result);renderPhotoPreview();};r.readAsDataURL(file);});input.value='';}
+function renderPhotoPreview(){document.getElementById('photo-preview').innerHTML=currentPhotos.map((src,i)=>`<div class="photo-thumb"><img src="${src}"><button class="photo-del" onclick="removePhoto(${i})">×</button></div>`).join('');document.getElementById('photo-count').textContent=currentPhotos.length>0?currentPhotos.length+' photo'+(currentPhotos.length!==1?'s':'')+' attached':'';}
+function removePhoto(i){currentPhotos.splice(i,1);renderPhotoPreview();}
+function startAssessment(){
+  const name=document.getElementById('officer-name').value.trim();
+  if(!name){alert('Please enter your name.');return;}
+  if(!state.obstime){alert('Please select an observation time.');return;}
+  state.officer=name;
+  ['meters-ok','meters-oos','meters-gone','spaces','occ','overtime'].forEach(k=>{state[k]=0;document.getElementById(k+'-val').textContent='0';});
+  ['facing','side','sign','action'].forEach(k=>state[k]='');
+  document.querySelectorAll('#facing-seg .seg-btn').forEach(b=>b.className='seg-btn');
+  ['E','W','N','S'].forEach(d=>{const btn=document.getElementById('side-'+d);btn.className='seg-btn disabled';});
+  document.getElementById('orient-hint').style.display='none';
+  ['c-hydrant','c-accessible','c-driveway','c-buszone','c-commercial'].forEach(id=>document.getElementById(id).checked=false);
+  ['f-street','f-from','f-to','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('#sign-seg .seg-btn, #action-seg .seg-btn').forEach(b=>b.className='seg-btn');
+  currentPhotos=[];renderPhotoPreview();
+  document.getElementById('form-context').textContent=name+' · '+state.obstime;
+  showScreen('s-form');
+}
+function constraints(){const l=[];if(document.getElementById('c-hydrant').checked)l.push('Fire hydrant');if(document.getElementById('c-accessible').checked)l.push('Accessible');if(document.getElementById('c-driveway').checked)l.push('Driveway');if(document.getElementById('c-buszone').checked)l.push('Bus stop');if(document.getElementById('c-commercial').checked)l.push('Commercial loading');return l.join('; ');}
+function saveRecord(){
+  const street=document.getElementById('f-street').value.trim();
+  if(!street){alert('Please enter a street name.');return;}
+  if(!state.facing){alert('Please select your facing direction.');return;}
+  if(!state.side){alert('Please select the block face side.');return;}
+  const rec={id:Date.now(),timestamp:new Date().toLocaleString('en-CA'),officer:state.officer,obstime:state.obstime,street,from:document.getElementById('f-from').value.trim(),to:document.getElementById('f-to').value.trim(),facing:state.facing,side:state.side,metersOk:state['meters-ok'],metersOos:state['meters-oos'],metersGone:state['meters-gone'],spaces:state.spaces,occupied:state.occ,overtime:state.overtime,occupancyPct:state.spaces>0?Math.round(state.occ/state.spaces*100):0,signage:state.sign,constraints:constraints(),action:state.action,notes:document.getElementById('f-notes').value.trim(),photos:currentPhotos.slice(),aiResult:null};
+  records.push(rec);localStorage.setItem('cbrm_parking',JSON.stringify(records));updateCount();showSummary();
+}
+function badgeCls(p){return p>=85?'badge-red':p>=60?'badge-amber':'badge-green';}
+function actionCls(a){return{'New sign zone':'badge-green','Reallocate meter':'badge-blue','Retire meter':'badge-amber','No change':'badge-gray'}[a]||'';}
+function showSummary(){
+  const tot=records.reduce((s,r)=>s+r.spaces,0),occ=records.reduce((s,r)=>s+r.occupied,0),prob=records.reduce((s,r)=>s+r.metersOos+r.metersGone,0);
+  document.getElementById('summary-sub').textContent=records.length+' block face'+(records.length!==1?'s':'')+' recorded';
+  document.getElementById('summary-stats').innerHTML='<div class="stat"><div class="stat-num">'+records.length+'</div><div class="stat-lbl">Block faces</div></div><div class="stat"><div class="stat-num">'+(tot>0?Math.round(occ/tot*100):0)+'%</div><div class="stat-lbl">Avg occupancy</div></div><div class="stat"><div class="stat-num">'+prob+'</div><div class="stat-lbl">Problem meters</div></div>';
+  document.getElementById('record-list').innerHTML=records.length===0?'<p style="color:var(--text2);font-size:14px;padding:8px 0">No records yet.</p>':records.slice().reverse().map(r=>`<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between"><div><div class="card-title">${r.street} · ${r.side} side</div><div class="card-sub">${r.from?r.from+' to '+r.to:''} · ${r.obstime} · Facing ${r.facing||'—'}</div></div><span class="badge ${badgeCls(r.occupancyPct)}">${r.occupancyPct}%</span></div><div style="margin-top:8px;font-size:12px;color:var(--text2)">OK: ${r.metersOk} · OOS: ${r.metersOos} · Missing: ${r.metersGone}${r.overtime>0?' · Overtime: '+r.overtime:''}</div>${r.photos&&r.photos.length>0?`<div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${r.photos.slice(0,3).map(p=>`<img src="${p}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">`).join('')}${r.photos.length>3?`<div style="width:56px;height:56px;border-radius:6px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2)">+${r.photos.length-3}</div>`:''}</div>`:''}${r.aiResult?'<div style="margin-top:6px"><span class="badge badge-green">AI reviewed</span></div>':''}${r.action?`<div style="margin-top:6px"><span class="badge ${actionCls(r.action)}">${r.action}</span></div>`:''}${r.photos&&r.photos.length>0?`<button class="btn btn-cam" style="margin-top:8px;padding:8px;font-size:13px" onclick="openReview(${r.id})">Review with AI</button>`:''}</div>`).join('');
+  showScreen('s-summary');
+}
+function openReview(id){
+  const rec=records.find(r=>r.id===id);if(!rec)return;
+  reviewRecordId=id;
+  document.getElementById('review-title').textContent=rec.street+' · '+rec.side+' side';
+  document.getElementById('review-sub').textContent=(rec.from?rec.from+' to '+rec.to+' · ':'')+rec.obstime+' · Facing '+(rec.facing||'—');
+  document.getElementById('review-photos').innerHTML=rec.photos.map(p=>`<div class="photo-thumb"><img src="${p}"></div>`).join('');
+  const btn=document.getElementById('ai-btn');btn.disabled=false;
+  btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Analyse photos with AI`;
+  document.getElementById('ai-result').innerHTML=rec.aiResult?`<div class="ai-result">${rec.aiResult.replace(/\n/g,'<br>')}</div>`:'';
+  showScreen('s-review');
+}
+async function runAI(){
+  const rec=records.find(r=>r.id===reviewRecordId);if(!rec||!rec.photos.length)return;
+  const btn=document.getElementById('ai-btn');btn.disabled=true;
+  btn.innerHTML=`<span class="spinner"></span> Analysing...`;
+  document.getElementById('ai-result').innerHTML='';
+  try{
+    const imgs=rec.photos.map(p=>({type:'image',source:{type:'base64',media_type:p.split(';')[0].split(':')[1],data:p.split(',')[1]}}));
+    const prompt=`You are assisting a CBRM bylaw enforcement officer with a parking assessment in downtown Sydney, Nova Scotia.\n\nOfficer recorded:\n- Street: ${rec.street} · ${rec.side} side\n- Block: ${rec.from||''}${rec.to?' to '+rec.to:''}\n- Officer facing: ${rec.facing||'not recorded'}\n- Time: ${rec.obstime}\n- Spaces: ${rec.spaces}, Occupied: ${rec.occupied}, Est. overtime: ${rec.overtime}\n- Meters OK: ${rec.metersOk}, OOS: ${rec.metersOos}, Missing: ${rec.metersGone}\n- Signage: ${rec.signage||'None'}\n- Constraints: ${rec.constraints||'None'}\n- Recommendation: ${rec.action||'Not recorded'}\n\nAnalyse the photo(s) and provide:\n1. Your estimated vehicle count and occupancy\n2. Whether your count agrees with the officer's — if not, explain the difference\n3. Visible meter damage, missing meters, or signage issues\n4. Any other parking management observations\n\nBe concise and practical.`;
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:[...imgs,{type:'text',text:prompt}]}]})});
+    const data=await resp.json();
+    const text=data.content&&data.content[0]?data.content[0].text:'No response received.';
+    const rec2=records.find(r=>r.id===reviewRecordId);
+    if(rec2){rec2.aiResult=text;localStorage.setItem('cbrm_parking',JSON.stringify(records));}
+    document.getElementById('ai-result').innerHTML=`<div class="ai-result">${text.replace(/\n/g,'<br>')}</div>`;
+    btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Re-analyse`;btn.disabled=false;
+  }catch(err){
+    document.getElementById('ai-result').innerHTML=`<div class="ai-result" style="color:var(--red-text)">Analysis failed — check your internet connection and try again.</div>`;
+    btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg> Retry`;btn.disabled=false;
+  }
+}
+function showExport(){
+  const tot=records.reduce((s,r)=>s+r.spaces,0),occ=records.reduce((s,r)=>s+r.occupied,0),prob=records.reduce((s,r)=>s+r.metersOos+r.metersGone,0);
+  document.getElementById('export-stats').innerHTML='<div class="stat"><div class="stat-num">'+records.length+'</div><div class="stat-lbl">Records</div></div><div class="stat"><div class="stat-num">'+(tot>0?Math.round(occ/tot*100):0)+'%</div><div class="stat-lbl">Avg occupancy</div></div><div class="stat"><div class="stat-num">'+prob+'</div><div class="stat-lbl">Problem meters</div></div>';
+  showScreen('s-export');
+}
+function buildCSV(){
+  const h=['Timestamp','Officer','Obs Time','Street','From','To','Facing','Block Face Side','Spaces','Occupied','Occupancy %','Overtime Est','Meters OK','Meters OOS','Meters Missing','Signage','Constraints','Recommended Action','Photos','AI Notes','Notes'];
+  const rows=records.map(r=>[r.timestamp,r.officer,r.obstime,r.street,r.from,r.to,r.facing||'',r.side,r.spaces,r.occupied,r.occupancyPct,r.overtime,r.metersOk,r.metersOos,r.metersGone,r.signage,r.constraints,r.action,(r.photos?r.photos.length:0)+' photo(s)','"'+(r.aiResult||'').replace(/"/g,"''").replace(/\n/g,' ')+'"','"'+(r.notes||'').replace(/"/g,"''")+'"'].join(','));
+  return[h.join(','),...rows].join('\n');
+}
+function buildFilename(){
+  const officer=(records[0]&&records[0].officer||'officer').replace(/\s+/g,'_');
+  const date=new Date().toISOString().slice(0,10);
+  const time=records[0]&&records[0].obstime?records[0].obstime.split(' ')[0].toLowerCase():'';
+  return`CBRM_${officer}_${date}${time?'_'+time:''}.csv`;
+}
+function copyCSV(){
+  const csv=buildCSV();
+  document.getElementById('export-out').textContent=csv;document.getElementById('export-out').style.display='block';
+  if(navigator.clipboard){navigator.clipboard.writeText(csv).then(()=>alert('Copied! Paste into the assessment spreadsheet.'));}
+  else{alert('Select the text below and copy manually.');}
+}
+function emailCSV(){window.location.href='mailto:?subject='+encodeURIComponent('CBRM Parking Assessment — '+buildFilename())+'&body='+encodeURIComponent('Field assessment data — paste into the spreadsheet:\n\n'+buildCSV());}
+function clearAll(){if(confirm('Delete all '+records.length+' records? This cannot be undone.')){records=[];localStorage.removeItem('cbrm_parking');updateCount();showScreen('s-home');}}
+</script>
+</body>
+</html>
